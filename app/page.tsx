@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useTheme, themes } from "@/contexts/theme-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dumbbell, TrendingUp, Box, Calendar, ChevronRight, Palette } from "lucide-react"
+import { Dumbbell, TrendingUp, Calendar, ChevronRight, Palette } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useEffect } from "react"
@@ -21,11 +21,6 @@ const features = [
     icon: TrendingUp,
     title: "Monitor Progress",
     description: "Visualize your gains with detailed charts and analytics",
-  },
-  {
-    icon: Box,
-    title: "3D Muscle View",
-    description: "See your strength mapped onto an interactive 3D body model",
   },
   {
     icon: Calendar,
@@ -89,8 +84,7 @@ export default function LandingPage() {
               <span className="text-primary glow-effect"> Fitness Journey</span>
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty">
-              Track your workouts, visualize your progress, and see your strength come to life with our revolutionary 3D
-              muscle mapping technology.
+              Track your workouts, visualize your progress, and crush your fitness goals with powerful analytics and history.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link href="/auth">

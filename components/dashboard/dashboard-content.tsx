@@ -19,7 +19,6 @@ import {
   Clock,
   ChevronRight,
   Target,
-  Box,
 } from "lucide-react"
 import { format, differenceInDays, startOfWeek, endOfWeek, isWithinInterval } from "date-fns"
 import { muscleGroupLabels } from "@/lib/exercises"
@@ -264,20 +263,13 @@ export function DashboardContent() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <QuickActionCard
           href="/progress"
           icon={TrendingUp}
           title="View Progress"
           description="Track your strength gains"
           iconColor="text-secondary"
-        />
-        <QuickActionCard
-          href="/3d-view"
-          icon={Box}
-          title="3D Muscle View"
-          description="Visualize your strength"
-          iconColor="text-primary"
         />
         <QuickActionCard
           href="/profile"

@@ -1,168 +1,441 @@
-# 🏋️ GymRemo — Fitness Tracking Application
+<p align="center">
+  <h1 align="center">🏋️ GymRemo</h1>
+  <p align="center"><strong>Advanced Fitness Tracking with 3D Muscle Visualization</strong></p>
+</p>
 
-A comprehensive fitness tracking application with **3D muscle visualization**, workout logging, progress analytics, and a Spring Boot REST API backend.
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Spring_Boot-3.2.5-6DB33F?style=for-the-badge&logo=spring" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Three.js-3D-000?style=for-the-badge&logo=three.js" alt="Three.js" />
+</p>
 
-![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=flat-square&logo=next.js)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.5-green?style=flat-square&logo=spring)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat-square&logo=postgresql)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+---
+
+## 📖 About
+
+GymRemo is a full-stack fitness tracking platform that combines a polished Next.js frontend with a robust Spring Boot REST API backend. Unlike typical fitness apps, GymRemo features an **interactive 3D human body model** powered by Three.js that visually maps your strength levels to individual muscle groups using a color-coded system — from red (beginner) through blue, white, gold, to platinum (pro bodybuilder).
+
+The application supports **120+ exercises** across **12 muscle groups**, offers pre-built workout templates (Push/Pull/Legs, Upper/Lower, 5x5 Strength), and provides comprehensive progress analytics with charts and personal record tracking. Authentication is handled via JWT tokens with automatic refresh, and all data is persisted in PostgreSQL.
 
 ---
 
 ## ✨ Features
 
-### Core Features
-- **Workout Tracking** — Log sets, reps, and weights for 120+ exercises across 12 muscle groups
-- **3D Muscle Visualization** — Interactive Three.js body model colored by your strength levels
-- **Progress Analytics** — Weight progression, volume trends, and workout frequency charts
-- **Personal Records** — Automatic PR detection and tracking
-- **5 Unique Themes** — Relaxing, Hardcore, Psycho, Sinner, Unbeatable
+### 🏋️ Workout Tracking
+- Log sets, reps, and weights for **120+ exercises** across 12 muscle groups
+- Real-time volume and set calculations during workout entry
+- **Floating rest timer** with audio notification, adjustable duration (15s–10min), and quick presets (60s, 90s, 2m, 3m)
+- Workout notes and history with search/filter capabilities
+- Automatic **personal record (PR) detection** across all exercises
 
-### New Features
-- **Exercise Encyclopedia** — Browse and filter 120+ exercises by muscle group, equipment, and difficulty
-- **Workout Templates** — Pre-built PPL, Upper/Lower, Full Body, and 5x5 programs
-- **Rest Timer** — Floating timer with sound notifications and quick presets (60s, 90s, 2m, 3m)
-- **Expanded Muscle Groups** — Now includes Neck, Glutes, Core, and Calves
-- **JWT Authentication** — Secure login/signup with access + refresh tokens
+### 🧬 3D Muscle Visualization
+- Interactive Three.js human body model with **40+ individual muscle meshes**
+- Front and back view toggle for complete body coverage
+- Color-coded strength mapping: Red → Blue → White → Gold → Platinum
+- Hover tooltips showing muscle name and current strength level
+- Dynamic glow effects based on strength assessment data
+
+### 📊 Progress Analytics
+- **Weight progression charts** per exercise over time (Recharts)
+- **Volume trend analysis** — weekly/monthly total volume tracking
+- **Workout frequency heatmap** — visualize training consistency
+- **Muscle group distribution** — pie chart of training balance
+- **Personal records dashboard** — top lifts with dates
+
+### 📚 Exercise Encyclopedia
+- Browse and search **120+ exercises** with multi-filter system
+- Filter by: muscle group, difficulty level (beginner/intermediate/advanced), equipment type
+- Grouped display by muscle group with exercise count badges
+- Equipment tags, compound exercise indicators, and difficulty color coding
+
+### 📋 Workout Templates
+- **8 pre-built templates**: Push Day, Pull Day, Leg Day, Upper Body, Lower Body, Full Body (Beginner), 5x5 Strength, HIIT Circuit
+- Expandable cards showing all exercises with sets x reps
+- Category filtering: Push Pull Legs, Upper Lower, Full Body, Strength, Cardio
+- Estimated duration and difficulty badges
+
+### 🎨 5 Unique Themes
+| Theme | Vibe | Colors |
+|-------|------|--------|
+| **Relaxing** | Professional & calm | Blue/purple tones, soft shadows |
+| **Hardcore** | Intense & aggressive | Deep red/black, bold contrasts |
+| **Psycho** | Cyberpunk neon | Electric neon, glow effects |
+| **Sinner** | Gothic & mysterious | Deep purple, dark atmosphere |
+| **Unbeatable** | Champion & elite | Gold/black, prestigious feel |
+
+### 🔐 Authentication & Security
+- JWT-based authentication with **access + refresh token** flow
+- Automatic token refresh on 401 responses (seamless UX)
+- BCrypt password hashing
+- CORS configuration for production domains
+- Protected routes with onboarding flow enforcement
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Project Architecture
 
 ```
 gym-remo/
-├── app/                          # Next.js pages (App Router)
-│   ├── page.tsx                  # Landing page
-│   ├── auth/page.tsx             # Login/Signup
-│   ├── onboarding/page.tsx       # User onboarding (3 steps)
-│   ├── dashboard/page.tsx        # Dashboard with stats
-│   ├── add-workout/page.tsx      # Workout logging + rest timer
-│   ├── progress/page.tsx         # Charts and analytics
-│   ├── exercises/page.tsx        # Exercise encyclopedia NEW
-│   ├── templates/page.tsx        # Workout templates NEW
-│   ├── 3d-view/page.tsx          # 3D muscle visualization
-│   ├── profile/page.tsx          # Profile and settings
-│   └── workout-history/page.tsx  # Workout history
-├── components/                   # React components
-├── contexts/                     # React contexts (API-integrated)
-├── lib/                          # Utilities
-├── backend/                      # Spring Boot backend NEW
-│   ├── src/main/java/com/gymremo/
-│   │   ├── entity/               # JPA entities
-│   │   ├── repository/           # Spring Data repositories
-│   │   ├── service/              # Business logic
-│   │   ├── controller/           # REST controllers
-│   │   ├── security/             # JWT auth filter
-│   │   ├── config/               # Security and CORS config
-│   │   └── dto/                  # Request/response DTOs
-│   ├── src/main/resources/
-│   │   ├── application.properties
-│   │   └── data.sql              # Exercise seed data
-│   ├── Dockerfile
-│   ├── render.yaml
-│   └── pom.xml
-└── .github/workflows/deploy.yml  # CI/CD pipeline
+│
+├── 📁 app/                              # Next.js App Router Pages
+│   ├── page.tsx                         # Landing page (hero, features, CTA)
+│   ├── layout.tsx                       # Root layout (providers, fonts)
+│   ├── globals.css                      # 5-theme CSS system
+│   ├── auth/page.tsx                    # Login & signup (tabbed)
+│   ├── onboarding/page.tsx              # 3-step onboarding wizard
+│   ├── dashboard/page.tsx               # Stats, streaks, recent workouts
+│   ├── add-workout/page.tsx             # Workout builder + rest timer
+│   ├── workout-history/page.tsx         # Searchable workout history
+│   ├── workout/[id]/page.tsx            # Workout detail with delete
+│   ├── progress/page.tsx                # Charts & analytics
+│   ├── exercises/page.tsx               # Exercise encyclopedia ⭐
+│   ├── templates/page.tsx               # Workout templates ⭐
+│   ├── 3d-view/page.tsx                 # 3D muscle visualization
+│   └── profile/page.tsx                 # Profile, strength, settings
+│
+├── 📁 components/
+│   ├── 3d/
+│   │   ├── muscle-model-3d.tsx          # Three.js body model (40+ meshes)
+│   │   └── muscle-visualization-content.tsx  # 3D orchestrator
+│   ├── auth/
+│   │   ├── login-form.tsx               # Email/password login
+│   │   └── signup-form.tsx              # Signup with password requirements
+│   ├── dashboard/
+│   │   └── dashboard-content.tsx        # Stats grid, PRs, recent workouts
+│   ├── layout/
+│   │   ├── navbar.tsx                   # Responsive nav (7 items + theme)
+│   │   └── protected-layout.tsx         # Auth guard + WorkoutProvider
+│   ├── onboarding/
+│   │   ├── personal-info-step.tsx       # Name, gender, weight, height
+│   │   ├── strength-assessment-step.tsx # 8 lift maxes
+│   │   └── review-step.tsx              # Summary with strength levels
+│   ├── progress/
+│   │   └── progress-content.tsx         # Recharts analytics
+│   ├── workout/
+│   │   ├── add-workout-content.tsx      # Multi-muscle workout builder
+│   │   └── rest-timer.tsx               # Floating timer component ⭐
+│   └── ui/                              # Shadcn UI components (20+)
+│
+├── 📁 contexts/
+│   ├── auth-context.tsx                 # JWT auth with API integration
+│   ├── workout-context.tsx              # Workout CRUD with API + fallback
+│   └── theme-context.tsx                # 5-theme system
+│
+├── 📁 lib/
+│   ├── api.ts                           # HTTP client with JWT refresh ⭐
+│   ├── exercises.ts                     # 120+ exercise database
+│   ├── strength-calculator.ts           # Strength level formulas
+│   ├── muscle-color-calculator.ts       # 3D model color mapping
+│   └── utils.ts                         # Tailwind merge helper
+│
+├── 📁 backend/                          # Spring Boot API ⭐
+│   ├── pom.xml                          # Maven (Boot 3.2.5, JPA, JWT)
+│   ├── Dockerfile                       # Multi-stage Docker build
+│   ├── render.yaml                      # Render.com deployment
+│   └── src/main/
+│       ├── java/com/gymremo/
+│       │   ├── GymRemoApplication.java  # Entry point
+│       │   ├── config/
+│       │   │   ├── SecurityConfig.java  # CORS, JWT filter, BCrypt
+│       │   │   └── DataSeeder.java      # System template seeder
+│       │   ├── controller/              # 8 REST controllers
+│       │   │   ├── AuthController.java
+│       │   │   ├── UserController.java
+│       │   │   ├── WorkoutController.java
+│       │   │   ├── ExerciseController.java
+│       │   │   ├── TemplateController.java
+│       │   │   ├── BodyWeightController.java
+│       │   │   ├── AnalyticsController.java
+│       │   │   └── GlobalExceptionHandler.java
+│       │   ├── dto/
+│       │   │   └── AuthDtos.java        # All request/response DTOs
+│       │   ├── entity/                  # 10 JPA entities
+│       │   ├── repository/              # 7 Spring Data repos
+│       │   ├── security/
+│       │   │   ├── JwtTokenProvider.java
+│       │   │   └── JwtAuthFilter.java
+│       │   └── service/
+│       │       ├── AuthService.java
+│       │       ├── WorkoutService.java
+│       │       └── UserMapperService.java
+│       └── resources/
+│           ├── application.properties
+│           ├── application-dev.properties
+│           ├── application-prod.properties
+│           └── data.sql                 # Exercise seed (50+ rows)
+│
+├── 📁 .github/workflows/
+│   └── deploy.yml                       # CI/CD pipeline
+│
+├── .env.local                           # Frontend env vars
+├── DEPLOYMENT.md                        # Deployment guide
+└── README.md                            # This file
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** 20+
-- **Java** 17+
-- **PostgreSQL** 15+ (for backend)
-- **Maven** 3.9+
 
-### Frontend (Next.js)
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Node.js | 20+ | Frontend runtime |
+| Java | 17+ | Backend runtime |
+| PostgreSQL | 15+ | Database |
+| Maven | 3.9+ | Java build tool |
+
+### Step 1: Clone the Repository
 
 ```bash
-npm install
-echo "NEXT_PUBLIC_API_URL=http://localhost:8080/api" > .env.local
-npm run dev
+git clone https://github.com/Vkchowdary05/gym_remov2.git
+cd gym_remov2
 ```
 
-Open http://localhost:3000
+### Step 2: Set Up the Database
 
-### Backend (Spring Boot)
+```bash
+# Connect as postgres user (password: root)
+createdb -U postgres gymremo_db
+
+# Or via psql
+psql -U postgres -c "CREATE DATABASE gymremo_db;"
+```
+
+### Step 3: Start the Backend
 
 ```bash
 cd backend
-createdb gymremo_db
+
+# Run with dev profile (connects to localhost:5432/gymremo_db)
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-Backend runs at http://localhost:8080/api
+The backend starts at **http://localhost:8080/api**
+
+On first startup:
+- Hibernate auto-creates all tables
+- `data.sql` seeds 50+ exercises
+- `DataSeeder.java` creates 6 system workout templates
+
+### Step 4: Start the Frontend
+
+```bash
+# In the project root (not backend/)
+npm install
+npm run dev
+```
+
+The frontend starts at **http://localhost:3000**
+
+### Step 5: Use the App
+
+1. Open http://localhost:3000
+2. Click **Get Started** → Create an account
+3. Complete the 3-step onboarding (personal info → strength assessment → review)
+4. You're on the dashboard! Start logging workouts
 
 ---
 
-## 🔑 API Endpoints
+## 🔑 API Reference
+
+All endpoints are prefixed with `/api`. Authenticated endpoints require `Authorization: Bearer <token>` header.
+
+### Authentication
 
 | Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | /api/auth/signup | No | Create account |
-| POST | /api/auth/login | No | Login |
-| POST | /api/auth/refresh | No | Refresh JWT token |
-| GET | /api/auth/me | Yes | Get current user |
-| POST | /api/auth/onboarding | Yes | Complete onboarding |
-| PATCH | /api/users/me/profile | Yes | Update profile |
-| PUT | /api/users/me/strength | Yes | Update strength assessment |
-| GET | /api/workouts | Yes | List all workouts |
-| POST | /api/workouts | Yes | Create workout |
-| DELETE | /api/workouts/:id | Yes | Delete workout |
-| GET | /api/exercises | No | List all exercises |
-| GET | /api/exercises/muscle-group/:group | No | Filter exercises by muscle |
-| GET | /api/templates | Yes | List workout templates |
-| POST | /api/templates | Yes | Create custom template |
-| DELETE | /api/templates/:id | Yes | Delete custom template |
-| GET | /api/body-weight | Yes | List weight logs |
-| POST | /api/body-weight | Yes | Log body weight |
-| DELETE | /api/body-weight/:id | Yes | Delete weight log |
-| GET | /api/analytics/summary | Yes | Get workout analytics |
+|--------|----------|:----:|-------------|
+| `POST` | `/auth/signup` | ❌ | Create new account. Body: `{email, password, displayName}` |
+| `POST` | `/auth/login` | ❌ | Login. Body: `{email, password}`. Returns access + refresh tokens |
+| `POST` | `/auth/refresh` | ❌ | Refresh tokens. Header: `X-Refresh-Token: <token>` |
+| `GET` | `/auth/me` | ✅ | Get current user with profile and strength data |
+| `POST` | `/auth/onboarding` | ✅ | Complete onboarding with profile + strength data |
+
+### User Management
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| `PATCH` | `/users/me/profile` | ✅ | Update name, gender, weight, height |
+| `PUT` | `/users/me/strength` | ✅ | Update all 8 strength assessment values |
+
+### Workouts
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| `GET` | `/workouts` | ✅ | List all user workouts (newest first) |
+| `POST` | `/workouts` | ✅ | Create workout with muscle groups, exercises, sets |
+| `DELETE` | `/workouts/:id` | ✅ | Delete a workout (owner only) |
+
+### Exercises
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| `GET` | `/exercises` | ❌ | List all active exercises |
+| `GET` | `/exercises/muscle-group/:group` | ❌ | Filter by muscle group |
+
+### Templates
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| `GET` | `/templates` | ✅ | List system + user templates |
+| `POST` | `/templates` | ✅ | Create custom template |
+| `DELETE` | `/templates/:id` | ✅ | Delete custom template (not system ones) |
+
+### Body Weight Tracking
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| `GET` | `/body-weight` | ✅ | List weight log entries |
+| `POST` | `/body-weight` | ✅ | Log body weight + optional body fat % |
+| `DELETE` | `/body-weight/:id` | ✅ | Delete a weight log entry |
+
+### Analytics
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| `GET` | `/analytics/summary` | ✅ | Computed stats: streak, weekly count, volume, most trained muscle |
 
 ---
 
-## 🎨 Themes
+## 🗄️ Database Schema
 
-| Theme | Description |
-|-------|-------------|
-| Relaxing | Calm blue/purple, professional and motivating |
-| Hardcore | Dark red/black, intense and aggressive |
-| Psycho | Neon cyberpunk, wild with glow effects |
-| Sinner | Gothic deep purple, dark and mysterious |
-| Unbeatable | Elite gold, champion and victorious |
+```
+┌──────────────┐     ┌──────────────────┐     ┌──────────────────────┐
+│    users     │────▶│  user_profiles   │     │ strength_assessments │
+│              │────▶│                  │     │                      │
+│ id (UUID)    │     │ name             │     │ bench_press_kg       │
+│ email        │     │ gender           │     │ squat_kg             │
+│ password_hash│     │ weight_kg        │     │ deadlift_kg          │
+│ display_name │     │ height_cm        │     │ shoulder_press_kg    │
+│ provider     │     │ onboarded        │     │ barbell_row_kg       │
+│ created_at   │     │ preferred_theme  │     │ overhead_press_kg    │
+└──────┬───────┘     └──────────────────┘     │ leg_press_kg         │
+       │                                       │ pull_ups_multiplier  │
+       │                                       └──────────────────────┘
+       │
+       ├───▶ workouts ───▶ workout_muscle_groups ───▶ workout_exercises ───▶ workout_sets
+       │
+       ├───▶ body_weight_logs
+       │
+       ├───▶ workout_templates
+       │
+       └───▶ exercises (seeded, shared)
+```
+
+### Key Relationships
+- **User → UserProfile**: One-to-one (created on signup)
+- **User → StrengthAssessment**: One-to-one (created on onboarding)
+- **User → Workouts**: One-to-many
+- **Workout → MuscleGroups → Exercises → Sets**: Nested cascade (all saved/deleted together)
 
 ---
 
-## 🌐 Deployment
+## 🔒 Security Architecture
 
-### Frontend to Vercel
-1. Push to GitHub
-2. Import in vercel.com
-3. Set NEXT_PUBLIC_API_URL to your backend URL
+### JWT Flow
 
-### Backend to Render
-1. Push backend/ to GitHub
-2. Create Web Service on render.com
-3. Set environment variables: JWT_SECRET, DATABASE_URL, CORS_ALLOWED_ORIGINS
+```
+1. User signs up/logs in
+   └── Server returns: { accessToken (24h), refreshToken (7d) }
+
+2. Frontend stores tokens in localStorage
+   └── All API calls include: Authorization: Bearer <accessToken>
+
+3. On 401 response:
+   └── API client auto-sends refresh request with X-Refresh-Token header
+       ├── Success: New tokens stored, original request retried
+       └── Failure: User redirected to /auth
+```
+
+### Password Security
+- **BCrypt** hashing with default strength (10 rounds)
+- Minimum 8 characters, must contain letter + number
+
+### CORS
+- Dev: `http://localhost:3000`
+- Prod: Configured via `CORS_ALLOWED_ORIGINS` environment variable
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 16.2, React 19, TypeScript 5 |
-| 3D Visualization | Three.js, react-three/fiber, react-three/drei |
-| UI Components | Shadcn UI, Radix UI, Tailwind CSS 4 |
-| Charts | Recharts |
-| Backend | Spring Boot 3.2.5, Java 17 |
-| Database | PostgreSQL |
-| Auth | JWT (jjwt 0.12.3) |
-| Deployment | Vercel (frontend), Render (backend) |
+### Frontend
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Next.js | 16.2 | React framework with App Router |
+| React | 19 | UI library |
+| TypeScript | 5 | Type safety |
+| Tailwind CSS | 4 | Utility-first styling |
+| Shadcn UI | Latest | 20+ accessible UI components |
+| Three.js | Latest | 3D muscle visualization |
+| @react-three/fiber | Latest | React Three.js renderer |
+| @react-three/drei | Latest | Three.js helpers |
+| Recharts | Latest | Chart library for analytics |
+| date-fns | Latest | Date formatting |
+| Lucide React | Latest | Icon library |
+
+### Backend
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Spring Boot | 3.2.5 | Java web framework |
+| Java | 17 | Language runtime |
+| Spring Data JPA | 3.2.x | Database ORM |
+| Spring Security | 6.x | Authentication & authorization |
+| PostgreSQL | 16 | Relational database |
+| jjwt | 0.12.3 | JWT token generation/validation |
+| Lombok | Latest | Boilerplate reduction |
+| Hibernate | 6.x | JPA implementation |
 
 ---
 
-## License
+## 🌐 Deployment
 
-MIT License
+| Component | Platform | URL Pattern |
+|-----------|----------|-------------|
+| Frontend | Vercel | `https://gymremo.vercel.app` |
+| Backend | Render | `https://gymremo-backend.onrender.com` |
+| Database | Render PostgreSQL | Internal connection |
+
+### Environment Variables
+
+**Frontend (Vercel)**:
+```
+NEXT_PUBLIC_API_URL=https://gymremo-backend.onrender.com/api
+```
+
+**Backend (Render)**:
+```
+SPRING_PROFILES_ACTIVE=prod
+DATABASE_URL=jdbc:postgresql://...
+DATABASE_USERNAME=gymremo_user
+DATABASE_PASSWORD=<generated>
+JWT_SECRET=<64+ char random string>
+CORS_ALLOWED_ORIGINS=https://gymremo.vercel.app
+PORT=8080
+```
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for step-by-step instructions.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m "Add amazing feature"`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+<p align="center">
+  Built with 💪 by <a href="https://github.com/Vkchowdary05">Vkchowdary05</a>
+</p>

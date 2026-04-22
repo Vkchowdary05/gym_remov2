@@ -14,7 +14,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "GymRemo - Track Your Fitness Journey",
   description:
-    "A comprehensive fitness tracking app with 3D muscle visualization, workout tracking, and progress analytics",
+    "A comprehensive fitness tracking app with workout tracking, strength analytics, and progress visualization.",
   keywords: ["fitness", "workout", "gym", "tracking", "muscle", "strength"],
     generator: 'v0.app'
 }

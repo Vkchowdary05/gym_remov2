@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dumbbell, LayoutDashboard, PlusCircle, TrendingUp, User, LogOut, Menu, Palette, Box, BookOpen, FileText } from "lucide-react"
+import { Dumbbell, LayoutDashboard, PlusCircle, TrendingUp, User, LogOut, Menu, Palette, BookOpen, FileText } from "lucide-react"
 import { useState } from "react"
 
 const navItems = [
@@ -24,7 +24,6 @@ const navItems = [
   { href: "/progress", label: "Progress", icon: TrendingUp },
   { href: "/exercises", label: "Exercises", icon: BookOpen },
   { href: "/templates", label: "Templates", icon: FileText },
-  { href: "/3d-view", label: "3D View", icon: Box },
   { href: "/profile", label: "Profile", icon: User },
 ]
 

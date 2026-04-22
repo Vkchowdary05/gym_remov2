@@ -7,7 +7,6 @@ import lombok.Builder;
 import java.util.List;
 
 // ===== AUTH DTOs =====
-@Data @NoArgsConstructor @AllArgsConstructor
 public class AuthDtos {
 
     @Data @NoArgsConstructor @AllArgsConstructor
