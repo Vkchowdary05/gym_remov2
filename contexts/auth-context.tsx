@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api"
 
 interface User {
   uid: string
@@ -44,6 +45,77 @@ interface AuthContextType {
   completeOnboarding: (profile: UserProfile, assessment: StrengthAssessment) => Promise<void>
 }
 
+// API response types
+interface AuthApiResponse {
+  accessToken: string
+  refreshToken: string
+  tokenType: string
+  expiresIn: number
+  user: UserApiResponse
+}
+
+interface UserApiResponse {
+  uid: string
+  email: string
+  displayName: string | null
+  photoUrl: string | null
+  profile: {
+    name: string
+    gender: string
+    weight: number
+    height: number
+    fitnessGoal: string | null
+    experienceLevel: string | null
+    onboarded: boolean
+    preferredTheme: string | null
+    restTimerSeconds: number | null
+  } | null
+  strengthAssessment: {
+    benchPress: number
+    squat: number
+    deadlift: number
+    shoulderPress: number
+    barbellRow: number
+    overheadPress: number
+    legPress: number
+    pullUps: number
+  } | null
+}
+
+function mapApiUserToState(apiUser: UserApiResponse) {
+  const user: User = {
+    uid: apiUser.uid,
+    email: apiUser.email,
+    displayName: apiUser.displayName,
+    photoURL: apiUser.photoUrl,
+  }
+
+  const profile: UserProfile | null = apiUser.profile
+    ? {
+        name: apiUser.profile.name || "",
+        gender: (apiUser.profile.gender as "male" | "female" | "other") || "male",
+        weight: apiUser.profile.weight || 70,
+        height: apiUser.profile.height || 175,
+        onboarded: apiUser.profile.onboarded,
+      }
+    : null
+
+  const strengthAssessment: StrengthAssessment | null = apiUser.strengthAssessment
+    ? {
+        benchPress: apiUser.strengthAssessment.benchPress || 0,
+        squat: apiUser.strengthAssessment.squat || 0,
+        deadlift: apiUser.strengthAssessment.deadlift || 0,
+        shoulderPress: apiUser.strengthAssessment.shoulderPress || 0,
+        barbellRow: apiUser.strengthAssessment.barbellRow || 0,
+        overheadPress: apiUser.strengthAssessment.overheadPress || 0,
+        legPress: apiUser.strengthAssessment.legPress || 0,
+        pullUps: apiUser.strengthAssessment.pullUps || 0,
+      }
+    : null
+
+  return { user, profile, strengthAssessment }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -54,53 +126,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  // Restore session on mount
   useEffect(() => {
-    // Check for existing session
-    const savedUser = localStorage.getItem("gym-remo-user")
-    const savedProfile = localStorage.getItem("gym-remo-profile")
-    const savedAssessment = localStorage.getItem("gym-remo-assessment")
+    const restoreSession = async () => {
+      const token = localStorage.getItem("gymremo-access-token")
+      if (!token) {
+        setLoading(false)
+        return
+      }
 
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+      try {
+        const apiUser = await apiClient.get<UserApiResponse>("/auth/me")
+        const state = mapApiUserToState(apiUser)
+        setUser(state.user)
+        setProfile(state.profile)
+        setStrengthAssessment(state.strengthAssessment)
+      } catch {
+        // Token invalid or expired - clear it
+        localStorage.removeItem("gymremo-access-token")
+        localStorage.removeItem("gymremo-refresh-token")
+      } finally {
+        setLoading(false)
+      }
     }
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile))
-    }
-    if (savedAssessment) {
-      setStrengthAssessment(JSON.parse(savedAssessment))
-    }
-    setLoading(false)
+
+    restoreSession()
   }, [])
 
   const login = async (email: string, password: string) => {
     setLoading(true)
     setError(null)
     try {
-      // Simulate API call - in production, replace with Firebase Auth
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mockUser: User = {
-        uid: `user_${Date.now()}`,
+      const response = await apiClient.post<AuthApiResponse>("/auth/login", {
         email,
-        displayName: email.split("@")[0],
-        photoURL: null,
-      }
+        password,
+      })
 
-      setUser(mockUser)
-      localStorage.setItem("gym-remo-user", JSON.stringify(mockUser))
+      localStorage.setItem("gymremo-access-token", response.accessToken)
+      localStorage.setItem("gymremo-refresh-token", response.refreshToken)
 
-      // Check if user has completed onboarding
-      const savedProfile = localStorage.getItem(`gym-remo-profile-${mockUser.uid}`)
-      if (savedProfile) {
-        const parsedProfile = JSON.parse(savedProfile)
-        setProfile(parsedProfile)
-        localStorage.setItem("gym-remo-profile", JSON.stringify(parsedProfile))
+      const state = mapApiUserToState(response.user)
+      setUser(state.user)
+      setProfile(state.profile)
+      setStrengthAssessment(state.strengthAssessment)
+
+      if (state.profile?.onboarded) {
         router.push("/dashboard")
       } else {
         router.push("/onboarding")
       }
-    } catch (err) {
-      setError("Failed to login. Please check your credentials.")
+    } catch (err: any) {
+      setError(err.message || "Failed to login. Please check your credentials.")
     } finally {
       setLoading(false)
     }
@@ -110,20 +186,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mockUser: User = {
-        uid: `user_${Date.now()}`,
+      const response = await apiClient.post<AuthApiResponse>("/auth/signup", {
         email,
+        password,
         displayName: email.split("@")[0],
-        photoURL: null,
-      }
+      })
 
-      setUser(mockUser)
-      localStorage.setItem("gym-remo-user", JSON.stringify(mockUser))
+      localStorage.setItem("gymremo-access-token", response.accessToken)
+      localStorage.setItem("gymremo-refresh-token", response.refreshToken)
+
+      const state = mapApiUserToState(response.user)
+      setUser(state.user)
+      setProfile(state.profile)
+      setStrengthAssessment(state.strengthAssessment)
+
       router.push("/onboarding")
-    } catch (err) {
-      setError("Failed to create account. Please try again.")
+    } catch (err: any) {
+      setError(err.message || "Failed to create account. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -133,75 +212,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     setProfile(null)
     setStrengthAssessment(null)
-    localStorage.removeItem("gym-remo-user")
-    localStorage.removeItem("gym-remo-profile")
-    localStorage.removeItem("gym-remo-assessment")
+    localStorage.removeItem("gymremo-access-token")
+    localStorage.removeItem("gymremo-refresh-token")
     router.push("/")
   }
 
   const googleSignIn = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mockUser: User = {
-        uid: `google_${Date.now()}`,
-        email: "user@gmail.com",
-        displayName: "Google User",
-        photoURL: null,
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("gym-remo-user", JSON.stringify(mockUser))
-
-      const savedProfile = localStorage.getItem(`gym-remo-profile-${mockUser.uid}`)
-      if (savedProfile) {
-        const parsedProfile = JSON.parse(savedProfile)
-        setProfile(parsedProfile)
-        localStorage.setItem("gym-remo-profile", JSON.stringify(parsedProfile))
-        router.push("/dashboard")
-      } else {
-        router.push("/onboarding")
-      }
-    } catch (err) {
-      setError("Failed to sign in with Google.")
-    } finally {
-      setLoading(false)
-    }
+    setError("Google Sign-In coming soon! Please use email/password for now.")
   }
 
   const updateProfile = async (newProfile: Partial<UserProfile>) => {
     if (!user) return
 
-    const updated = { ...profile, ...newProfile } as UserProfile
-    setProfile(updated)
-    localStorage.setItem("gym-remo-profile", JSON.stringify(updated))
-    localStorage.setItem(`gym-remo-profile-${user.uid}`, JSON.stringify(updated))
+    try {
+      const apiUser = await apiClient.patch<UserApiResponse>("/users/me/profile", {
+        name: newProfile.name,
+        gender: newProfile.gender,
+        weightKg: newProfile.weight,
+        heightCm: newProfile.height,
+      })
+
+      const state = mapApiUserToState(apiUser)
+      setProfile(state.profile)
+    } catch (err: any) {
+      // Fallback to local state update
+      const updated = { ...profile, ...newProfile } as UserProfile
+      setProfile(updated)
+    }
   }
 
   const updateStrengthAssessment = async (assessment: StrengthAssessment) => {
     if (!user) return
 
-    setStrengthAssessment(assessment)
-    localStorage.setItem("gym-remo-assessment", JSON.stringify(assessment))
-    localStorage.setItem(`gym-remo-assessment-${user.uid}`, JSON.stringify(assessment))
+    try {
+      const apiUser = await apiClient.put<UserApiResponse>("/users/me/strength", {
+        benchPressKg: assessment.benchPress,
+        squatKg: assessment.squat,
+        deadliftKg: assessment.deadlift,
+        shoulderPressKg: assessment.shoulderPress,
+        barbellRowKg: assessment.barbellRow,
+        overheadPressKg: assessment.overheadPress,
+        legPressKg: assessment.legPress,
+        pullUpsMultiplier: assessment.pullUps,
+      })
+
+      const state = mapApiUserToState(apiUser)
+      setStrengthAssessment(state.strengthAssessment)
+    } catch (err: any) {
+      // Fallback to local state
+      setStrengthAssessment(assessment)
+    }
   }
 
   const completeOnboarding = async (newProfile: UserProfile, assessment: StrengthAssessment) => {
     if (!user) return
 
-    const profileWithOnboarding = { ...newProfile, onboarded: true }
+    try {
+      const apiUser = await apiClient.post<UserApiResponse>("/auth/onboarding", {
+        name: newProfile.name,
+        gender: newProfile.gender,
+        weightKg: newProfile.weight,
+        heightCm: newProfile.height,
+        benchPressKg: assessment.benchPress,
+        squatKg: assessment.squat,
+        deadliftKg: assessment.deadlift,
+        shoulderPressKg: assessment.shoulderPress,
+        barbellRowKg: assessment.barbellRow,
+        overheadPressKg: assessment.overheadPress,
+        legPressKg: assessment.legPress,
+        pullUpsMultiplier: assessment.pullUps,
+      })
 
-    setProfile(profileWithOnboarding)
-    setStrengthAssessment(assessment)
+      const state = mapApiUserToState(apiUser)
+      setProfile(state.profile)
+      setStrengthAssessment(state.strengthAssessment)
 
-    localStorage.setItem("gym-remo-profile", JSON.stringify(profileWithOnboarding))
-    localStorage.setItem(`gym-remo-profile-${user.uid}`, JSON.stringify(profileWithOnboarding))
-    localStorage.setItem("gym-remo-assessment", JSON.stringify(assessment))
-    localStorage.setItem(`gym-remo-assessment-${user.uid}`, JSON.stringify(assessment))
-
-    router.push("/dashboard")
+      router.push("/dashboard")
+    } catch (err: any) {
+      // Fallback: save locally and proceed
+      const profileWithOnboarding = { ...newProfile, onboarded: true }
+      setProfile(profileWithOnboarding)
+      setStrengthAssessment(assessment)
+      router.push("/dashboard")
+    }
   }
 
   return (

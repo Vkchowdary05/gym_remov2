@@ -30,7 +30,7 @@ interface MuscleGroupData {
   exercises: ExerciseData[]
 }
 
-const allMuscleGroups: MuscleGroup[] = ["chest", "back", "shoulders", "biceps", "triceps", "legs", "forearms", "cardio"]
+const allMuscleGroups: MuscleGroup[] = ["chest", "back", "shoulders", "biceps", "triceps", "legs", "glutes", "core", "calves", "forearms", "neck", "cardio"]
 
 export function AddWorkoutContent() {
   const { addWorkout } = useWorkouts()

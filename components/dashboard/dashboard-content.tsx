@@ -74,6 +74,35 @@ export function DashboardContent() {
     .sort((a, b) => b[1].weight - a[1].weight)
     .slice(0, 3)
 
+  // Time-based greeting
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "Good morning"
+    if (hour < 17) return "Good afternoon"
+    return "Good evening"
+  }
+
+  // Motivational quotes
+  const getMotivationalQuote = () => {
+    const quotes = [
+      "The only bad workout is the one that didn't happen.",
+      "Your body can stand almost anything. It's your mind you have to convince.",
+      "Strength does not come from the body. It comes from the will.",
+      "The pain you feel today will be the strength you feel tomorrow.",
+      "Push harder than yesterday if you want a different tomorrow.",
+      "Success isn't always about greatness. It's about consistency.",
+      "Don't limit your challenges. Challenge your limits.",
+      "The iron never lies. Only you know what you lifted.",
+      "Fall in love with the process and the results will come.",
+      "Champions are made from something deep inside them — a desire, a dream, a vision.",
+    ]
+    // Use day of year as a deterministic but daily-changing index
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+    )
+    return quotes[dayOfYear % quotes.length]
+  }
+
   if (loading) {
     return <DashboardSkeleton />
   }
@@ -84,9 +113,9 @@ export function DashboardContent() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Welcome back, {profile?.name || user?.displayName || "Athlete"}!
+            {getTimeBasedGreeting()}, {profile?.name || user?.displayName || "Athlete"}!
           </h1>
-          <p className="text-muted-foreground mt-1">Track your progress and crush your goals</p>
+          <p className="text-muted-foreground mt-1">{getMotivationalQuote()}</p>
         </div>
         <Link href="/add-workout">
           <Button size="lg" className="w-full md:w-auto">

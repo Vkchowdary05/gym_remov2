@@ -14,3 +14,16 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+
+# Backend (Spring Boot / Maven)
+backend/target/
+backend/*.iml
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.swp
